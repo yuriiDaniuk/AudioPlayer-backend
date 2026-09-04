@@ -1,0 +1,75 @@
+// 1. Налаштування генератора для TypeScript
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 2. Підключення до MongoDB
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+//                 МОДЕЛІ
+// ==========================================
+
+model User {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  email        String     @unique
+  passwordHash String
+  name         String
+  avatarUrl    String?    // Значення зі знаком питання є опціональними
+  createdAt    DateTime   @default(now())
+
+  // Зв'язок 1:N -> Користувач може створити багато плейлистів
+  playlists    Playlist[]
+
+  // Зв'язок N:M -> Улюблені треки (зберігаємо масив ID треків)
+  likedTrackIds String[]  @db.ObjectId
+  likedTracks   Track[]   @relation("UserLikedTracks", fields: [likedTrackIds], references: [id])
+}
+
+model Artist {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  avatarUrl String?
+  bio       String?
+
+  // Зв'язок 1:N -> Артист має багато треків
+  tracks    Track[]
+}
+
+model Track {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  title      String
+  audioUrl   String
+  coverUrl   String?
+  duration   Int      // Тривалість у секундах
+
+  // Зв'язок 1:N -> Трек належить одному артисту
+  artistId   String   @db.ObjectId
+  artist     Artist   @relation(fields: [artistId], references: [id])
+
+  // Зв'язок N:M -> Трек може бути в багатьох плейлистах
+  playlistIds String[] @db.ObjectId
+  playlists   Playlist[] @relation(fields: [playlistIds], references: [id])
+
+  // Зворотний зв'язок для улюблених треків
+  userLikedIds String[] @db.ObjectId
+  likedByUsers User[]   @relation("UserLikedTracks", fields: [userLikedIds], references: [id])
+}
+
+model Playlist {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  coverUrl  String?
+  createdAt DateTime @default(now())
+
+  // Зв'язок 1:N -> Плейлист має одного власника (User)
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+
+  // Зв'язок N:M -> Плейлист містить багато треків
+  trackIds  String[] @db.ObjectId
+  tracks    Track[]  @relation(fields: [trackIds], references: [id])
+}
