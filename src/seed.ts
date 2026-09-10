@@ -2,17 +2,21 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+/**
+ * Seeds the database with a consistent set of artists and tracks for the application.
+ * The script clears existing records before creating the initial dataset to keep the app state predictable.
+ */
 async function main() {
-  console.log("⏳ Починаємо наповнення бази даних...");
+  console.log("⏳ Starting database seeding...");
 
-  // 1. Очищаємо старі дані (щоб не було дублікатів при повторному запуску)
+  // Clear previous records to avoid duplicates during repeated local seeding runs.
   await prisma.track.deleteMany();
   await prisma.artist.deleteMany();
   await prisma.user.deleteMany();
 
-  console.log("🧹 Базу очищено. Створюємо нові дані...");
+  console.log("🧹 Database cleared. Creating new data...");
 
-  // 2. Створюємо The Weeknd (2 треки)
+  // Seed the primary artists and their related tracks.
   const theWeeknd = await prisma.artist.create({
     data: {
       name: "The Weeknd",
@@ -37,7 +41,6 @@ async function main() {
     },
   });
 
-  // 3. Створюємо Daft Punk (1 трек)
   const daftPunk = await prisma.artist.create({
     data: {
       name: "Daft Punk",
@@ -56,7 +59,7 @@ async function main() {
     },
   });
 
-  // 4. Створюємо нових артистів для сітки 3х3 (ще 6 треків)
+  // Populate the remaining artist grid so the library contains a 3x3 dataset.
   await prisma.artist.create({
     data: {
       name: "M83",
@@ -68,9 +71,9 @@ async function main() {
           duration: 210,
           audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
           coverUrl: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=500&q=80",
-        }]
-      }
-    }
+        }],
+      },
+    },
   });
 
   await prisma.artist.create({
@@ -84,9 +87,9 @@ async function main() {
           duration: 245,
           audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
           coverUrl: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&q=80",
-        }]
-      }
-    }
+        }],
+      },
+    },
   });
 
   await prisma.artist.create({
@@ -100,9 +103,9 @@ async function main() {
           duration: 180,
           audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3",
           coverUrl: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500&q=80",
-        }]
-      }
-    }
+        }],
+      },
+    },
   });
 
   await prisma.artist.create({
@@ -116,9 +119,9 @@ async function main() {
           duration: 230,
           audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3",
           coverUrl: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=500&q=80",
-        }]
-      }
-    }
+        }],
+      },
+    },
   });
 
   await prisma.artist.create({
@@ -132,9 +135,9 @@ async function main() {
           duration: 220,
           audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3",
           coverUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&q=80",
-        }]
-      }
-    }
+        }],
+      },
+    },
   });
 
   await prisma.artist.create({
@@ -148,20 +151,20 @@ async function main() {
           duration: 260,
           audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3",
           coverUrl: "https://images.unsplash.com/photo-1493225457124-a1a2a5956093?w=500&q=80",
-        }]
-      }
-    }
+        }],
+      },
+    },
   });
 
-  console.log(`✅ Створено артиста: ${theWeeknd.name} (з треками)`);
-  console.log(`✅ Створено артиста: ${daftPunk.name} (з треками)`);
-  console.log("✅ Створено ще 6 нових треків для сітки");
-  console.log("🎉 Базу успішно наповнено (Разом 9 треків)!");
+  console.log(`✅ Created artist: ${theWeeknd.name} (with tracks)`);
+  console.log(`✅ Created artist: ${daftPunk.name} (with tracks)`);
+  console.log("✅ Added 6 more tracks for the grid");
+  console.log("🎉 Database seeding completed successfully (9 tracks total)!");
 }
 
 main()
   .catch((e) => {
-    console.error("❌ Сталася помилка:", e);
+    console.error("❌ An error occurred:", e);
     process.exit(1);
   })
   .finally(async () => {
